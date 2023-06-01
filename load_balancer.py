@@ -43,9 +43,16 @@ class N2One:
 class RoundRobin:
     def __init__(self, servers):
         self.servers = servers
+        self.currentServer = 0
 
     def select_server(self):
-        pass
+        server = self.servers[self.currentServer]
+        self.currentServer += 1
+        
+        if self.currentServer == len(self.servers):
+            self.currentServer = 0
+        
+        return server
     
     def update(self, *arg):
         pass
