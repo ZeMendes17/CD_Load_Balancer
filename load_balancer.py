@@ -5,6 +5,7 @@ import selectors
 import signal
 import logging
 import argparse
+import time as T
 
 # configure logger output format
 logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',datefmt='%m-%d %H:%M:%S')
@@ -84,11 +85,21 @@ class LeastConnections:
 class LeastResponseTime:
     def __init__(self, servers):
         self.servers = servers
+        # {server : average response time} starting with 0 response time 
+        self.serverAverageResponseTime = {server : 0 for server in servers}
+        self.serverLastResponseTime = {}
 
     def select_server(self):
-        pass
+        # get the server with the least response time
+        minServer = min(self.serverAverageResponseTime, key=self.serverAverageResponseTime.get)
+        self.serverLastResponseTime[minServer] = T.time() # when the server is selected, save the time of the request
+        return minServer
 
     def update(self, *arg):
+        # calculate the response time and update the average response time
+        sock = arg[0]
+        self.serverLastResponseTime[sock] = T.time() - self.serverLastResponseTime[sock]
+
         pass
 
 
