@@ -62,12 +62,22 @@ class RoundRobin:
 class LeastConnections:
     def __init__(self, servers):
         self.servers = servers
+        # {server : number of connections} starting with 0 connections (will increment)
+        self.serverConnections = {server : 0 for server in servers}
 
     def select_server(self):
-        pass
+        # get the server with the least connections
+        minServer = min(self.serverConnections, key=self.serverConnections.get)
+        # increment the number of connections
+        self.serverConnections[minServer] += 1
+        return minServer
 
     def update(self, *arg):
-        pass
+        # socket was closed
+        sock = arg[0]
+        self.serverConnections[sock] -= 1
+        
+
 
 
 # least response time
