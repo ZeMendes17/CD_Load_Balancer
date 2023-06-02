@@ -75,8 +75,8 @@ class LeastConnections:
 
     def update(self, *arg):
         # socket was closed
-        sock = arg[0]
-        self.serverConnections[sock] -= 1
+        server = arg[0]
+        self.serverConnections[server] -= 1
         
 
 
@@ -87,21 +87,30 @@ class LeastResponseTime:
         self.servers = servers
         # {server : average response time} starting with 0 response time 
         self.serverAverageResponseTime = {server : 0 for server in servers}
-        self.serverLastResponseTime = {}
+        self.serverStartTimes = {server : 0 for server in servers}
+        # this const will be used to delay the server a little when it is used
+        self.const = 0.0000000000000000001
 
     def select_server(self):
         # get the server with the least response time
         minServer = min(self.serverAverageResponseTime, key=self.serverAverageResponseTime.get)
-        self.serverLastResponseTime[minServer] = T.time() # when the server is selected, save the time of the request
+        self.serverStartTimes[minServer] = T.time() # when the server is selected, save the time of the request
+        self.serverAverageResponseTime[minServer] = self.serverAverageResponseTime[minServer] + self.const
         return minServer
 
     def update(self, *arg):
         # calculate the response time and update the average response time
-        sock = arg[0]
-        self.serverLastResponseTime[sock] = T.time() - self.serverLastResponseTime[sock]
+        server = arg[0]
+        timeVariation = T.time() - self.serverStartTimes[server]
+        # print(timeVariation)
+        times = {}
+        if server not in times:
+            times[server] = [timeVariation]
+        else:
+            times[server].append(timeVariation)
 
-        pass
-
+        # update average times
+        self.serverAverageResponseTime[server] = sum(times[server]) /  len(times[server])
 
 POLICIES = {
     "N2One": N2One,
@@ -167,6 +176,7 @@ def read(conn,mask):
 def main(addr, servers, policy_class):
     global policy
     global mapper
+    # global cache
 
     # register handler for interruption 
     # it stops the infinite loop gracefully
@@ -174,6 +184,7 @@ def main(addr, servers, policy_class):
 
     policy = policy_class(servers)
     mapper = SocketMapper(policy)
+    # cache = {}
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(addr)
