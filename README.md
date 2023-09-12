@@ -1,6 +1,8 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/jr_IVAhN)
 # Load Balancer
 
+Grade: 20
+
 Very simples HTTP/TCP Load Balancer.
 Implemented in Python3, single thread, using OS selector.
 The code contains 4 classes that implement different strategies to select the next back-end server:
